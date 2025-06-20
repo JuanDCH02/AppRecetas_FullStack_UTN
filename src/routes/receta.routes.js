@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const recetaController = require('../controllers/receta.controller');
+const upload = require('../middlewares/multer.middleware')
 
+router.post('/', upload.single('imagen'),recetaController.createReceta);
 router.get('/', recetaController.getAllRecetas);
 router.get('/:id', recetaController.getRecetaById);
-router.post('/', recetaController.createReceta);
 router.put('/:id', recetaController.updateReceta);
 router.delete('/:id', recetaController.deleteReceta);
 

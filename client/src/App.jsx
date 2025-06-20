@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 
 
 function App() {
-  const [recetas, setRecetas] = useState([]);
+  const [recipes, setRecipes] = useState([]);
 
   //hago el llamado a mi db y cargo todas las recetas
   useEffect(() => {
@@ -15,7 +15,7 @@ function App() {
       try {
         const res = await fetch('http://localhost:3000/api/recetas');
         const data = await res.json();
-        setRecetas(data);
+        setRecipes(data);
       } catch (error) {
         console.error('Error al obtener recetas:', error);
       }
@@ -25,13 +25,12 @@ function App() {
   }, []);
 
   //las divido por categoria
-  const recetasPastas = recetas.filter(r => r.category === 'pastas');
-  const recetasPostres = recetas.filter(r => r.category === 'dessert');
-  const recetasVeganas = recetas.filter(r => r.category === 'veggie');
+  const recetasPastas = recipes.filter(r => r.category === 'pastas');
+  const recetasPostres = recipes.filter(r => r.category === 'dessert');
+  const recetasVeganas = recipes.filter(r => r.category === 'veggie');
 
   return (
     <>
-    {console.log(recetas)}
       <div className='mt-40'>
         <Header />
       </div>
@@ -42,12 +41,8 @@ function App() {
       </h2>
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 
       gap-4 max-w-6xl mx-auto items-center justify-center'>
-        {recetas.map(receta => (
-        <Card
-          key={receta._id}
-          name={receta.name}
-          category={receta.category}
-        />
+        {recipes.map(receta => (
+        <Card key={receta._id} name={receta.name} category={receta.category} />
       ))}
       </div>
       
@@ -87,8 +82,6 @@ function App() {
       <LoginForm />
       <IngredientsForm />
       <Footer />
-      
-      
     </>
   )  
 }

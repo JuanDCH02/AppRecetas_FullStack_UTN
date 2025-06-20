@@ -6,7 +6,8 @@ const recetaSchema = new mongoose.Schema({
   portions: {type: Number, default: 1},
   ingredients: {type: [String], min: 2},
   preparation: {type: String, required:true},
-  category: {type: String, required:true}
+  category: {type: String, required:true},
+  imageUrl:{type:String, required:true}
 });
 
 module.exports = mongoose.model('Receta', recetaSchema, 'recetas'); 

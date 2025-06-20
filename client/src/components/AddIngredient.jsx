@@ -1,30 +1,35 @@
-import React, { useState } from 'react'
+
 import { IngredientCard } from './IngredientCard';
 
-export const AddIngredient = () => {
+export const AddIngredient = ({ingredient,setIngredient,ingredients,setIngredients}) => {
 
-    const [ingredientes, setIngredientes] = useState([]);
-    const [nombreIng, setNombreIng] = useState('');
-    const [cantidad, setCantidad] = useState('');
-    const [unidad, setUnidad] = useState('');
+    const initialState = ({
+        ingName: '',
+        quantity: 0,
+        unit: ''
+    })
+     // Maneja los cambios en los inputs
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setIngredient((prev) => ({
+          ...prev,
+          [name]: name === 'quantity' ? Number(value) : value
+        }))
+    }
 
-    const agregarIngrediente = (e) => {
+    const addIngredient = (e) => {
         e.preventDefault();
-        if(!nombreIng || !cantidad || !unidad) {
+        if(!ingredient.ingName || !ingredient.quantity || !ingredient.unit) {
             console.log('faltan datos')
             return
         }     
-        setIngredientes([
-            ...ingredientes,
-            {nombreIng, cantidad, unidad}
-        ])
-        setCantidad('')
-        setUnidad('')
-        setNombreIng('')
+        setIngredients([...ingredients, ingredient])
+        setIngredient(initialState)
     }
-    const eliminarIngrediente = (e, indexEliminar) => {
+    
+    const deleteIngredient = (e, indexEliminar) => {
         e.preventDefault();
-        setIngredientes(ingredientes.filter((_, index) => index !== indexEliminar));
+        setIngredients(ingredients.filter((_, index) => index !== indexEliminar));
     }
 
   return (
@@ -36,9 +41,10 @@ export const AddIngredient = () => {
             <input 
                 className="border rounded w-full p-2 mb-4 bg-white"
                 type="text" 
+                name='ingName'
                 placeholder='Nombre del ingrediente' 
-                value={nombreIng} 
-                onChange={(e) => setNombreIng(e.target.value)} 
+                value={ingredient.ingName} 
+                onChange={(e) => handleChange(e)} 
             />
 
             <label className='block mb-2 font-medium'>Cantidad</label>
@@ -46,15 +52,17 @@ export const AddIngredient = () => {
                 className="border rounded w-full p-2 mb-4 bg-white"
                 type="number"
                 placeholder='Cantidad' 
-                value={cantidad} 
-                onChange={(e) => setCantidad(e.target.value)} 
+                name='quantity'
+                value={ingredient.quantity} 
+                onChange={(e) => handleChange(e)} 
             />
 
             <label className='block mb-2 font-medium'>Unidad</label>
             <select 
                 className='w-full p-2 rounded mb-4 border bg-white'
-                value={unidad} 
-                onChange={(e) => setUnidad(e.target.value)}>
+                value={ingredient.unit} 
+                name='unit'
+                onChange={(e) => handleChange(e)}>
                 <option value="" disabled>--Unidad--</option>
                 <option value="gr">gr</option>
                 <option value="ml">ml</option>
@@ -62,24 +70,24 @@ export const AddIngredient = () => {
             </select>
 
             <button
-                onClick={agregarIngrediente}
+                onClick={addIngredient}
                 className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
                 >Agregar ingrediente
             </button>
         </div >
 
-        <div className='w-1/2 bg-gray-100 p-4 rounded-lg shadow-inner'>
-            <div className='block '>
+        <div className='w-1/2 bg-gray-100 p-4 rounded-lg shadow-inner '>
+            <div className='overflow-y-scroll h-70'>
             {
-                ingredientes.map((ingrediente, index) =>(
-                    <IngredientCard
-                    key={index}
-                    nombre={ingrediente.nombreIng}
-                    cantidad={ingrediente.cantidad}
-                    unidad={ingrediente.unidad}
-                    eliminarIngrediente={(e) => eliminarIngrediente(e, index)}
-                    />
-                ))
+            ingredients.map((ingredient, index) =>(
+                <IngredientCard
+                key={index}
+                nombre={ingredient.ingName}
+                cantidad={ingredient.quantity}
+                unidad={ingredient.unit}
+                deleteIngredient={(e) => deleteIngredient(e, index)}
+                />
+            ))
             }
             </div>
         </div>

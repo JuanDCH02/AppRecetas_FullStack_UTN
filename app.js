@@ -7,6 +7,7 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static('public'))
 
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
@@ -20,7 +21,6 @@ const authRoutes = require('./src/routes/auth.routes');
 app.use('/api/auth', authRoutes);
 
 app.use('/api/recetas', recetaRoutes);
-app.use('/')
 
 app.get('/ping-mongodb', async (req, res) => {
   try {
