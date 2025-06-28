@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const path = require('path');
 const cors = require('cors');
 dotenv.config();
 
@@ -20,7 +21,8 @@ const authRoutes = require('./src/routes/auth.routes');
 
 app.use('/api/auth', authRoutes);
 
-app.use('/api/recetas', recetaRoutes);
+app.use('/recetas', recetaRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 app.get('/ping-mongodb', async (req, res) => {
   try {

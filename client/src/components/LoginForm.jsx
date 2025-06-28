@@ -23,7 +23,7 @@ export const LoginForm = () => {
                         <input className="bg-gray-50 border border-gray-300 sm:text-sm rounded-lg block w-full p-2.5" placeholder="••••••••" id="confirmPassword" type="password"/>
                     </div>
                     <button
-                        className="opacity-0 group-hover:opacity-100 transition-all duration-300 w-full hover:bg-emerald-700 hover:text-white font-medium rounded-lg text-md px-5 py-2.5 text-center"
+                        className="transition-all duration-300 w-full hover:bg-emerald-700 hover:text-white font-medium rounded-lg text-md px-5 py-2.5 text-center"
                         type="submit"
                         >Ingresar
                     </button>

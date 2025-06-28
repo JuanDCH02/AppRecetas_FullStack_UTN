@@ -7,24 +7,14 @@ export const Header = () => {
 
       <h1 className='text-5xl font-bold text-white'>MIReceta</h1>
 
-      <nav className='flex'>
-        <ul 
-        className='flex gap-4 font-semibold'>
-          <li>
-            <a href="#">Pastas</a>
-          </li>
-          <li>
-            <a href="#">Desserts</a>
-          </li>
-          <li>
-            <a href="#">Veggies</a>
-          </li>
-        </ul>      
-      </nav>
-
       <div className='flex'>
-          <button className='hover:bg-emerald-700 hover:text-white rounded-lg p-2 font-black hover:cursor-pointer transition-all duration-300'>Login</button>
-          <button className='hover:bg-emerald-700 hover:text-white rounded-lg p-2 font-black hover:cursor-pointer transition-all duration-300'>Register</button>
+          
+          <button className='capitalize hover:bg-emerald-700 hover:text-white rounded-lg p-2 font-black hover:cursor-pointer transition-all duration-300'
+          >agregar receta
+          </button>
+          <button className='capitalize hover:bg-emerald-700 hover:text-white rounded-lg p-2 font-black hover:cursor-pointer transition-all duration-300'
+          >cerrar sesion
+          </button>
         </div>
     </header>
 

@@ -22,8 +22,8 @@ const registrarUsuario = async ({ email, user, password }) => {
 
 const errorNotLogin = new Error('Usuario o contraseña incorrectos');
 
-const loginUsuario = async ({ usuario, password }) => {
-  const user = await User.findOne({ usuario });
+const loginUsuario = async ({ user, password }) => {
+  const user = await User.findOne({ user });
   if (!user){
     throw errorNotLogin
   }  

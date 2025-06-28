@@ -1,21 +1,23 @@
-const recetaService = require('../services/receta.service');
+const recetaService = require('../services/receta.service')
+
+
 
 const getAllRecetas = async (req, res) => {
   try {
-    const categoria = req.query.categoria; // ?categoria=veggie
-    const recetas = await recetaService.getAllRecetas(categoria);
-    res.json(recetas);
+    const category = req.query.categoria; // ?categoria=veggie
+    const recipes = await recetaService.getAllRecetas(category);
+    res.json(recipes);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener las recetas' });
   }
 };
 const getRecetaById = async (req, res) => {
   try {
-    const receta = await recetaService.getRecetaById(req.params.id);
-    if (!receta) {
+    const recipe = await recetaService.getRecetaById(req.params.id);
+    if (!recipe) {
       return res.status(404).json({ message: 'Receta no encontrada' });
     }
-    res.json(receta);
+    res.json(recipe);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener la receta' });
   }
@@ -23,28 +25,57 @@ const getRecetaById = async (req, res) => {
 
 const createReceta = async (req, res) => {
   try {
-    const nuevaReceta = await recetaService.createReceta(req.body);
-    res.status(201).json(nuevaReceta);
+    console.log('BODY:', req.body);
+    console.log('FILE:', req.file);
+
+    const { recName, category, time, portions, preparation } = req.body;
+
+    // Asegurate que ingredients esté presente
+    let ingredients;
+    try {
+      ingredients = JSON.parse(req.body.ingredients);
+    } catch (err) {
+      return res.status(400).json({ message: 'Ingredientes inválidos' });
+    }
+
+    const imageUrl = req.file?.filename;
+    if (!imageUrl) return res.status(400).json({ message: 'Imagen faltante' });
+
+    const nuevaReceta = {
+      recName,
+      category,
+      time: Number(time),
+      portions: Number(portions),
+      preparation,
+      ingredients,
+      imageUrl,
+    };
+
+    const recetaCreada = await recetaService.createReceta(nuevaReceta);
+    res.status(201).json(recetaCreada);
   } catch (error) {
-    res.status(500).json({ message: 'Error al crear la receta' });
+    console.error('Error al crear receta:', error);
+    res.status(500).json({ message: 'Error interno del servidor', error: error.message });
   }
-}
+};
+
+
 
 const updateReceta = async (req, res) => {
   try {
-    const recetaActualizada = await recetaService.updateReceta(req.params.id, req.body);
-    if (!recetaActualizada) {
+    const recipeUpdated = await recetaService.updateReceta(req.params.id, req.body);
+    if (!recipeUpdated) {
       return res.status(404).json({ message: 'Receta no encontrada' });
     }
-    res.json(recetaActualizada);
+    res.json(recipeUpdated);
   } catch (error) {
     res.status(500).json({ message: 'Error al actualizar la receta' });
   }
 };
 const deleteReceta = async (req, res) => {
   try {
-    const recetaEliminada = await recetaService.deleteReceta(req.params.id);
-    if (!recetaEliminada) {
+    const recipeDeleted = await recetaService.deleteReceta(req.params.id);
+    if (!recipeDeleted) {
       return res.status(404).json({ message: 'Receta no encontrada' });
     }
     res.json({ message: 'Receta eliminada correctamente' });

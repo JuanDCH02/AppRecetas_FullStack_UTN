@@ -1,24 +1,25 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { AddIngredient } from './AddIngredient'
+import axios from 'axios'
 
 export const IngredientsForm = () => {
 
+    //estado de la imagen
+    const [imageFile, setImageFile] = useState(null);
     //estado general de mi receta
    const [recipe, setRecipe]= useState({
-        recName:'',
+        name:'',
         category:'',
         time:0,
         portions:0,
         preparation:'',
-        image:'',
    })
    const initialState = ({
-        recName:'',
+        name:'',
         category:'',
         time:0,
         portions:0,
         preparation:'',
-        image:'',
    })
    //listado de ingredientes
     const [ingredients, setIngredients] = useState([]);
@@ -38,22 +39,47 @@ export const IngredientsForm = () => {
         }))
     }
     //controlo que esten los campos llenos y un minimo de ingredientes
-    const handleSubmit = (e) =>{
-       e.preventDefault()
-       if(!recipe.recName || !recipe.category || !recipe.image || !recipe.preparation){
-        console.log('faltan datos en el form recetas')
-       }
-       if(ingredients.length < 1){
-        console.log('minimo 2 ingredientes')
-       }
-       console.log('receta exitosa!')
-       console.log(recipe)
-       //vacio los formularios
-       setRecipe(initialState)
-       setIngredients([])
-       
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+    if(!imageFile) console.log('falta imagen')
+    if (!recipe.name || !recipe.category || !recipe.preparation) {
+      console.log('faltan datos en el form recetas')
+      return;
     }
+    if (ingredients.length < 2) {
+      console.log('minimo 2 ingredientes')
+      return;
+    }
+    console.log('nombre:', recipe.name);
+    console.log('ingredients:', ingredients);
+    console.log('imageFile:', imageFile);
+    try {
+        const formData = new FormData();
+        formData.append('name', recipe.name)
+        formData.append('category', recipe.category)
+        formData.append('time', recipe.time)
+        formData.append('portions', recipe.portions)
+        formData.append('preparation', recipe.preparation)
+        formData.append('image', imageFile)
+        formData.append('ingredients', JSON.stringify(ingredients));
+        for (let pair of formData.entries()) {
+            console.log(`${pair[0]}:`, pair[1]);
+          }
 
+        try {
+            const res = await axios.post('http://localhost:3000/recetas', formData);
+            console.log('Receta creada:', res.data);
+        } catch (error) {
+            console.error('Error al crear receta:', error);
+        }
+        // Limpiar formularios
+        setRecipe(initialState)
+        setIngredients([])
+        setImageFile(null)
+    }   catch (error) {
+        console.error('Error al guardar receta:', error)
+    }
+    };
 
   return (
     <div className='flex flex-col items-center justify-center mx-2 '>
@@ -65,8 +91,8 @@ export const IngredientsForm = () => {
                 </label>
                 <input className='border p-1 rounded-md border-gray-500 bg-white' 
                     placeholder='Pasta con queso' 
-                    type="text" name='recName'
-                    value={recipe.recName}
+                    type="text" name='name'
+                    value={recipe.name}
                     onChange={(e)=> handleChange(e)}
                 />
                 <label className='font-semibold'
@@ -111,8 +137,8 @@ export const IngredientsForm = () => {
                 <input type="file"
                     className='border p-1 rounded-md border-gray-500 bg-white'
                     id='image' name='image'
-                    value={recipe.image}
-                    onChange={(e)=> handleChange(e)}
+                    accept='image/*'
+                    onChange={(e) => setImageFile(e.target.files[0])}
                  />
             </div>
 
@@ -142,7 +168,7 @@ export const IngredientsForm = () => {
             </div>
 
             <input type="submit" 
-                className="opacity-0 group-hover:opacity-100 transition-all duration-300 w-full hover:bg-emerald-700 hover:text-white font-medium rounded-lg text-md px-5 py-2.5 text-center"
+                className=" group-hover:opacity-100 transition-all duration-300 w-full hover:bg-emerald-700 hover:text-white font-medium rounded-lg text-md px-5 py-2.5 text-center"
                 value={'Guardar Receta'}
             />
            
