@@ -19,7 +19,7 @@ const createReceta = async (data) => {
 
 // Actualizar una receta existente
 const updateReceta = async (id, data) => {
-  return await Receta.findByIdAndUpdate(id, data, { new: true });
+  return await Receta.findByIdAndUpdate(id, data, {new: true});
 };
 
 // Eliminar una receta

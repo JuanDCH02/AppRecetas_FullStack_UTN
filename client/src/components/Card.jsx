@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-export const Card = ({ _id, name, category, time, portions, imageUrl, onView, onDelete }) => {
+export const Card = ({ recipe, onView, onDelete, onEdit }) => {
+  const {_id, name, category, time, portions, imageUrl} = recipe
   const handleDelete = async () => {
     if (window.confirm('¿Estás seguro que deseas eliminar esta receta?')) {
       try {
@@ -38,6 +39,9 @@ export const Card = ({ _id, name, category, time, portions, imageUrl, onView, on
       <div className="flex items-center justify-center gap-2">
         <button
             className="my-2 bg-yellow-500 hover:bg-yellow-200 text-white font-semibold p-2 rounded-2xl w-1/2 text-center transition-all duration-300"
+            onClick={() => {
+              onEdit();
+            }}
           >editar
         </button>
         <button

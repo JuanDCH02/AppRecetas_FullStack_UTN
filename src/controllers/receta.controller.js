@@ -25,6 +25,8 @@ const getRecetaById = async (req, res) => {
 
 const createReceta = async (req, res) => {
   try {
+    console.log('BODY:', req.body);
+    console.log('FILE:', req.file);
     let { name, category, time, portions, preparation, ingredients } = req.body;
     if (typeof ingredients === 'string') {
       try {
@@ -33,7 +35,7 @@ const createReceta = async (req, res) => {
         return res.status(400).json({ message: 'Formato de ingredientes inválido' });
       }
     }
-    const imageUrl = req.file?.filename;
+    const imageUrl = req.file?.filename || req.body.imageUrl;
     if (!imageUrl) return res.status(400).json({ message: 'Imagen faltante' });
     const newRecipe = {
       name,
@@ -54,16 +56,43 @@ const createReceta = async (req, res) => {
 
 
 const updateReceta = async (req, res) => {
+  console.log('BODY:', req.body);
+    console.log('FILE:', req.file);
   try {
-    const recipeUpdated = await recetaService.updateReceta(req.params.id, req.body);
-    if (!recipeUpdated) {
+    const { name, category, time, portions, preparation, ingredients } = req.body;
+
+    let parsedIngredients = ingredients;
+    if (typeof ingredients === 'string') {
+      try {
+        parsedIngredients = JSON.parse(ingredients);
+      } catch (e) {
+        return res.status(400).json({ message: 'Formato de ingredientes inválido' });
+      }
+    }
+    const recetaActual = await recetaService.getRecetaById(req.params.id);
+    if (!recetaActual) {
       return res.status(404).json({ message: 'Receta no encontrada' });
     }
-    res.json(recipeUpdated);
+    const imageUrl = req.file?.filename || recetaActual.imageUrl;
+
+    const updatedData = {
+      name,
+      category,
+      time: Number(time),
+      portions: Number(portions),
+      preparation,
+      ingredients: parsedIngredients,
+      imageUrl,
+    };
+    console.log('Actualizando receta con:', updatedData);
+    const recetaActualizada = await recetaService.updateReceta(req.params.id, updatedData);
+    res.json(recetaActualizada);
   } catch (error) {
-    res.status(500).json({ message: 'Error al actualizar la receta' });
+    console.error('Error al actualizar receta:', error);
+    res.status(500).json({ message: 'Error al actualizar la receta', error: error.message });
   }
 };
+
 const deleteReceta = async (req, res) => {
   try {
     const recipeDeleted = await recetaService.deleteReceta(req.params.id);
@@ -75,6 +104,7 @@ const deleteReceta = async (req, res) => {
     res.status(500).json({ message: 'Error al eliminar la receta' });
   }
 };
+
 module.exports = {
   getAllRecetas,
   getRecetaById,

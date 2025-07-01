@@ -11,18 +11,28 @@ import axios from 'axios'
 
 function App() {
   const [recipes, setRecipes] = useState([]);
-  const [filter, setFilter] = useState('');
   const [user, setUser] = useState(null)
   const [isAuth, setIsAuth] = useState()
-  const [recipeSeleted, setRecipeSeleted] = useState(null);
+  const [filter, setFilter] = useState('');
+  const [recipeSelected, setRecipeSelected] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [addRecipe,setAddRecipe] = useState(false)
 
-  const cerrarModal = () => setRecipeSeleted(null);
+  const cerrarModal = () => {
+    setRecipeSelected(null);
+    setIsEditing(false);
+  };
+
   const handleDeleteRecipe = (id) => {
-    setRecipes(prevRecipes => prevRecipes.filter(recipe => recipe._id !== id));
+    setRecipes(prev => prev.filter(recipe => recipe._id !== id));
   };
   const handleNewRecipe = (newRecipe) =>{
     setRecipes(prev => [...prev, newRecipe])
+  }
+  const handleUpdateRecipe = (updatedRecipe) =>{
+    setRecipes(prev => prev.map(r => 
+      updatedRecipe._id === r._id? updatedRecipe: r
+    ))
   }
 
   useEffect(() => {
@@ -90,27 +100,48 @@ function App() {
           (recipe) => (
             <Card
               key={recipe._id}
-              {...recipe}
-              onView={() => setRecipeSeleted(recipe)}
+              recipe={recipe}
+              onView={() => {
+                setRecipeSelected(recipe);
+                setIsEditing(false);
+              }}
               onDelete={handleDeleteRecipe}
+              onEdit={() => {
+                setRecipeSelected(recipe);
+                setIsEditing(true);
+              }}
             />
           )
         )}
       </main>
   
       {/* MODAL mostrar recetas */}
-      {recipeSeleted && (
+      {recipeSelected && !isEditing && (
         <Modal onClose={cerrarModal}>
-          <ShowRecipe recipe={recipeSeleted} />
+          <ShowRecipe recipe={recipeSelected} />
         </Modal>
       )}
 
-      {/* FORMULARIO de recetas */}
+      {/* FORMULARIO para agregar recetas */}
       {addRecipe && (
+       
         <Modal onClose={() => setAddRecipe(false)}>
           <IngredientsForm
-            onAddRecipe={handleNewRecipe}
             setAddRecipe={setAddRecipe}
+            onAddRecipe={handleNewRecipe}
+            onUpdateRecipe={handleUpdateRecipe}
+          />
+        </Modal>
+      )}
+
+      {/* FORMULARIO para editar recetas */}
+      {recipeSelected && isEditing && (
+        <Modal onClose={cerrarModal}>
+          <IngredientsForm
+            onAddRecipe={handleNewRecipe}
+            onUpdateRecipe={handleUpdateRecipe}
+            setAddRecipe={setAddRecipe}
+            recipeSelected={recipeSelected}
           />
         </Modal>
       )}

@@ -2,19 +2,19 @@ import { useState } from 'react'
 import { AddIngredient } from './AddIngredient'
 import axios from 'axios'
 
-export const IngredientsForm = ({onAddRecipe, setAddRecipe}) => {
+export const IngredientsForm = ({onAddRecipe, onUpdateRecipe, setAddRecipe, recipeSelected}) => {
 
+    //manejo de los errores
     const [errorMsg, setErrorMsg] = useState('');
-
     //estado de la imagen
-    const [imageFile, setImageFile] = useState(null);
+    const [imageFile, setImageFile] = useState(recipeSelected?.imageFile || null);
     //estado general de mi receta
    const [recipe, setRecipe]= useState({
-        name:'',
-        category:'',
-        time:0,
-        portions:0,
-        preparation:'',
+        name:recipeSelected?.name || '',
+        category:recipeSelected?.category || '',
+        time:recipeSelected?.time || 0,
+        portions:recipeSelected?.portions || 0,
+        preparation:recipeSelected?.preparation || '',
    })
    const initialState = ({
         name:'',
@@ -24,7 +24,7 @@ export const IngredientsForm = ({onAddRecipe, setAddRecipe}) => {
         preparation:'',
    })
    //listado de ingredientes
-    const [ingredients, setIngredients] = useState([]);
+    const [ingredients, setIngredients] = useState(recipeSelected?.ingredients || []);
     //estado del ingrediente actual
     const [ingredient, setIngredient] = useState({
         ingName: '',
@@ -47,8 +47,8 @@ export const IngredientsForm = ({onAddRecipe, setAddRecipe}) => {
         setErrorMsg('faltan datos de la receta');
         return;
     }
-    if(!imageFile){
-        setErrorMsg('falta la imagen')
+    if (!imageFile && !recipeSelected) {
+        setErrorMsg('falta la imagen');
         return;
     }   
     if (ingredients.length < 2) {
@@ -62,26 +62,38 @@ export const IngredientsForm = ({onAddRecipe, setAddRecipe}) => {
         formData.append('time', recipe.time)
         formData.append('portions', recipe.portions)
         formData.append('preparation', recipe.preparation)
-        formData.append('image', imageFile)
-        formData.append('ingredients', JSON.stringify(ingredients));
-        try {
-            const res = await axios.post('http://localhost:3000/recetas', formData);
-            console.log('Receta creada:', res.data);
-            onAddRecipe(res.data)
-            setErrorMsg('')
-            setAddRecipe(false)
-        } catch (error) {
-            console.error('Error al crear receta:', error);
-            setErrorMsg('Error al crear receta');
+        if (imageFile) {
+            formData.append('image', imageFile);
+        } else if (recipeSelected?.imageUrl) {
+            formData.append('imageUrl', recipeSelected.imageUrl);
         }
+        formData.append('ingredients', JSON.stringify(ingredients));
+        console.log([...formData.entries()]);
+        let res;
+        //EDITO LA RECETA
+        if(recipeSelected){
+            res = await axios.put(`http://localhost:3000/recetas/${recipeSelected._id}`, formData);
+            console.log('receta actualizada', res.data)
+            onUpdateRecipe(res.data)
+        } else{
+            //CREO LA RECETA
+            res  = await axios.post('http://localhost:3000/recetas', formData);
+            console.log('Receta creada:', res.data);
+            onAddRecipe(res.data) 
+        }
+        //cierro modal y borro los errores
+        setErrorMsg('')
+        setAddRecipe(false)
+    }   catch (error) {
+        console.error('Error al guardar receta:', error)
+        setErrorMsg('Error al crear receta');
+        }
+        finally{
         // Limpiar formularios
         setRecipe(initialState)
         setIngredients([])
         setImageFile(null)
-    }   catch (error) {
-        console.error('Error al guardar receta:', error)
-        setErrorMsg('Error al crear receta');
-    }
+        }
     };
 
   return (
@@ -150,6 +162,13 @@ export const IngredientsForm = ({onAddRecipe, setAddRecipe}) => {
                     accept='image/*'
                     onChange={(e) => setImageFile(e.target.files[0])}
                  />
+                {recipeSelected?.imageUrl && !imageFile && (
+                    <img
+                      src={`http://localhost:3000/uploads/${recipeSelected.imageUrl}`}
+                      alt="imagen actual"
+                      className="w-32 h-24 object-cover rounded-md mb-2"
+                    />
+                )}
             </div>
 
             <div className='flex flex-col items-center justify-center gap-2 '>
