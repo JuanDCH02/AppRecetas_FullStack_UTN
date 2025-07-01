@@ -25,24 +25,18 @@ const getRecetaById = async (req, res) => {
 
 const createReceta = async (req, res) => {
   try {
-    console.log('BODY:', req.body);
-    console.log('FILE:', req.file);
-
-    const { recName, category, time, portions, preparation } = req.body;
-
-    // Asegurate que ingredients esté presente
-    let ingredients;
-    try {
-      ingredients = JSON.parse(req.body.ingredients);
-    } catch (err) {
-      return res.status(400).json({ message: 'Ingredientes inválidos' });
+    let { name, category, time, portions, preparation, ingredients } = req.body;
+    if (typeof ingredients === 'string') {
+      try {
+        ingredients = JSON.parse(ingredients);
+      } catch (e) {
+        return res.status(400).json({ message: 'Formato de ingredientes inválido' });
+      }
     }
-
     const imageUrl = req.file?.filename;
     if (!imageUrl) return res.status(400).json({ message: 'Imagen faltante' });
-
-    const nuevaReceta = {
-      recName,
+    const newRecipe = {
+      name,
       category,
       time: Number(time),
       portions: Number(portions),
@@ -50,15 +44,13 @@ const createReceta = async (req, res) => {
       ingredients,
       imageUrl,
     };
-
-    const recetaCreada = await recetaService.createReceta(nuevaReceta);
-    res.status(201).json(recetaCreada);
+    const recipeCreated = await recetaService.createReceta(newRecipe);
+    res.status(201).json(recipeCreated);
   } catch (error) {
     console.error('Error al crear receta:', error);
     res.status(500).json({ message: 'Error interno del servidor', error: error.message });
   }
 };
-
 
 
 const updateReceta = async (req, res) => {

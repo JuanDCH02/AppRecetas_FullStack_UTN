@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { AddIngredient } from './AddIngredient'
 import axios from 'axios'
 
-export const IngredientsForm = () => {
+export const IngredientsForm = ({onAddRecipe, setAddRecipe}) => {
+
+    const [errorMsg, setErrorMsg] = useState('');
 
     //estado de la imagen
     const [imageFile, setImageFile] = useState(null);
@@ -41,18 +43,18 @@ export const IngredientsForm = () => {
     //controlo que esten los campos llenos y un minimo de ingredientes
     const handleSubmit = async (e) => {
     e.preventDefault();
-    if(!imageFile) console.log('falta imagen')
     if (!recipe.name || !recipe.category || !recipe.preparation) {
-      console.log('faltan datos en el form recetas')
-      return;
+        setErrorMsg('faltan datos de la receta');
+        return;
     }
+    if(!imageFile){
+        setErrorMsg('falta la imagen')
+        return;
+    }   
     if (ingredients.length < 2) {
-      console.log('minimo 2 ingredientes')
+      setErrorMsg('faltan ingredientes');
       return;
     }
-    console.log('nombre:', recipe.name);
-    console.log('ingredients:', ingredients);
-    console.log('imageFile:', imageFile);
     try {
         const formData = new FormData();
         formData.append('name', recipe.name)
@@ -62,15 +64,15 @@ export const IngredientsForm = () => {
         formData.append('preparation', recipe.preparation)
         formData.append('image', imageFile)
         formData.append('ingredients', JSON.stringify(ingredients));
-        for (let pair of formData.entries()) {
-            console.log(`${pair[0]}:`, pair[1]);
-          }
-
         try {
             const res = await axios.post('http://localhost:3000/recetas', formData);
             console.log('Receta creada:', res.data);
+            onAddRecipe(res.data)
+            setErrorMsg('')
+            setAddRecipe(false)
         } catch (error) {
             console.error('Error al crear receta:', error);
+            setErrorMsg('Error al crear receta');
         }
         // Limpiar formularios
         setRecipe(initialState)
@@ -78,14 +80,22 @@ export const IngredientsForm = () => {
         setImageFile(null)
     }   catch (error) {
         console.error('Error al guardar receta:', error)
+        setErrorMsg('Error al crear receta');
     }
     };
 
   return (
     <div className='flex flex-col items-center justify-center mx-2 '>
+        
         <form className='my-10 p-10 bg-amber-50 max-w-4xl mx-auto border rounded-lg space-y-4 group'
         onSubmit={(e) => handleSubmit(e)}>
+            {errorMsg && (
+            <div className="bg-red-100 text-red-800 p-2 rounded mb-3">
+                {errorMsg}
+            </div>
+            )}  
             <div className='flex flex-col-1 lg:flex-col-2 items-center justify-center gap-2'>
+                
                 <label className='font-semibold '
                 >Nombre de la receta:
                 </label>

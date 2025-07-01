@@ -19,8 +19,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 const recetaRoutes = require('./src/routes/receta.routes');
 const authRoutes = require('./src/routes/auth.routes');
 
-app.use('/api/auth', authRoutes);
-
+app.use('/auth', authRoutes);
 app.use('/recetas', recetaRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 

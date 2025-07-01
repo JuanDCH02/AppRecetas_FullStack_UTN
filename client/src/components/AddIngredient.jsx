@@ -66,7 +66,9 @@ export const AddIngredient = ({ingredient,setIngredient,ingredients,setIngredien
                 <option value="" disabled>--Unidad--</option>
                 <option value="gr">gr</option>
                 <option value="ml">ml</option>
-                <option value="taza">taza</option>
+                <option value="tzas">taza</option>
+                <option value="uds">unidad</option>
+                <option value="cdas">cucharada</option>
             </select>
 
             <button
